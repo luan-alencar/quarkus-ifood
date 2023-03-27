@@ -2,7 +2,6 @@ package david.augusto.luan.ifood.cadastro;
 
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
-import io.quarkus.test.junit.QuarkusTest;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.HashMap;
@@ -10,7 +9,7 @@ import java.util.Map;
 
 public class CadastroTestResourceLifecycleManager implements QuarkusTestResourceLifecycleManager {
 
-    public static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("debezium/example-postgres");
+    public static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:12.2");
 
     @Override
     public Map<String, String> start() {
