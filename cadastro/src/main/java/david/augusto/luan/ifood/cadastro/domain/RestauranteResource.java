@@ -30,7 +30,7 @@ public class RestauranteResource {
 
 
     @PUT
-    @Path("{id}")
+    @Path("/{id}")
     @Transactional
     public void atualizar(@PathParam("id") Long id, Restaurante dto) {
         Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
@@ -42,7 +42,7 @@ public class RestauranteResource {
     }
 
     @DELETE
-    @Path("{id}")
+    @Path("/{id}")
     @Transactional
     public void delete(@PathParam("id") Long id) {
         Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
@@ -55,7 +55,7 @@ public class RestauranteResource {
     //Pratos
 
     @GET
-    @Path("{idRestaurante}/pratos")
+    @Path("/{idRestaurante}/pratos")
     @Tag(name = "prato")
     public List<Restaurante> buscarPratos(@PathParam("idRestaurante") Long idRestaurante) {
         Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
