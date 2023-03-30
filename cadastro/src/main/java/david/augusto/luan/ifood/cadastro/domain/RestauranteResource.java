@@ -24,8 +24,9 @@ public class RestauranteResource {
 
     @POST
     @Transactional
-    public void salvar(Restaurante dto) {
+    public Response salvar(Restaurante dto) {
         Restaurante.persist(dto);
+        return Response.status(Response.Status.CREATED).build();
     }
 
 

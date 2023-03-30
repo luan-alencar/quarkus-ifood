@@ -31,6 +31,7 @@ public class RestauranteTestResource {
     }
 
     @Test
+
     public void salvar() {
         given()
                 .body(new Restaurante())
@@ -38,6 +39,6 @@ public class RestauranteTestResource {
                 .when()
                 .post(RESPONSE)
                 .then()
-                .statusCode(204);
+                .statusCode(201);
     }
 }
