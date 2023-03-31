@@ -1,16 +1,26 @@
 package david.augusto.luan.ifood.cadastro;
 
 
+import javax.ws.rs.core.Response.Status;
+
+import david.augusto.luan.ifood.cadastro.domain.AtualizarRestauranteDTO;
+import david.augusto.luan.ifood.cadastro.domain.Restaurante;
+import org.approvaltests.Approvals;
+import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import com.github.database.rider.cdi.api.DBRider;
 import com.github.database.rider.core.api.configuration.DBUnit;
 import com.github.database.rider.core.api.configuration.Orthography;
 import com.github.database.rider.core.api.dataset.DataSet;
-import david.augusto.luan.ifood.cadastro.domain.Restaurante;
+
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Test;
-
-import static io.restassured.RestAssured.given;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.http.Header;
+import io.restassured.specification.RequestSpecification;
 
 @DBRider
 @DBUnit(caseInsensitiveStrategy = Orthography.LOWERCASE)
@@ -18,27 +28,50 @@ import static io.restassured.RestAssured.given;
 @QuarkusTestResource(CadastroTestLifecycleManager.class)
 public class RestauranteTestResource {
 
-    private static final String RESPONSE = "/api/restaurantes";
+    private String token;
+
+//    @BeforeEach
+//    public void gereToken() throws Exception {
+//        token = TokenUtils.generateTokenString("/JWTProprietarioClaims.json", null);
+//    }
 
     @Test
     @DataSet("restaurantes-cenario-1.yml")
     public void testBuscarRestaurantes() {
-        given()
-                .when().get(RESPONSE)
+        String resultado = given()
+                .when().get("/api/restaurantes")
                 .then()
-                .statusCode(200)
+                .statusCode(Status.OK.getStatusCode())
                 .extract().asString();
+        Approvals.verifyJson(resultado);
     }
+
+    private RequestSpecification given() {
+        return RestAssured.given()
+                .contentType(ContentType.JSON).header(new Header("Authorization", "Bearer " + token));
+    }
+
+    //Exemplo de um teste de PUT
 
     @Test
-
-    public void salvar() {
+    @DataSet("restaurantes-cenario-1.yml")
+    public void testAlterarRestaurante() {
+        AtualizarRestauranteDTO dto = new AtualizarRestauranteDTO();
+        dto.nomeFantasia = "novoNome";
+        Long parameterValue = 123L;
         given()
-                .body(new Restaurante())
-                .header("Content-type", "application/json")
-                .when()
-                .post(RESPONSE)
+                .with().pathParam("id", parameterValue)
+                .body(dto)
+                .when().put("/restaurantes/{id}")
                 .then()
-                .statusCode(201);
+                .statusCode(Status.NO_CONTENT.getStatusCode())
+                .extract().asString();
+
+        Restaurante findById = Restaurante.findById(parameterValue);
+
+        //poderia testar todos os outros atribudos
+        Assert.assertEquals(dto.nomeFantasia, findById.nome);
+
     }
+
 }

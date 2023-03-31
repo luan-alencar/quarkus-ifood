@@ -12,10 +12,12 @@ import java.util.Optional;
 
 @ApplicationScoped
 @Tag(name = "restaurante")
-@Path("/api/restaurantes")
+@Path(RestauranteResource.V1_RESPONSE)
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class RestauranteResource {
+
+    public static final String V1_RESPONSE = "v1/api/restaurantes";
 
     @GET
     public List<Restaurante> listarRestaurantes() {
