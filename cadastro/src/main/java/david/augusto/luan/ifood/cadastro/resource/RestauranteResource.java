@@ -1,14 +1,23 @@
-package david.augusto.luan.ifood.cadastro.domain;
+package david.augusto.luan.ifood.cadastro.resource;
 
+import david.augusto.luan.ifood.cadastro.domain.Prato;
+import david.augusto.luan.ifood.cadastro.domain.Restaurante;
+import david.augusto.luan.ifood.cadastro.service.dto.AdicionarPratoDTO;
+import david.augusto.luan.ifood.cadastro.service.dto.RestauranteDTO;
+import david.augusto.luan.ifood.cadastro.service.mapper.PratoMapper;
+import david.augusto.luan.ifood.cadastro.service.mapper.RestauranteMapper;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 @Tag(name = "restaurante")
@@ -19,9 +28,16 @@ public class RestauranteResource {
 
     public static final String V1_RESPONSE = "v1/api/restaurantes";
 
+    @Inject
+    private RestauranteMapper restauranteMapper;
+
+    @Inject
+    private PratoMapper pratoMapper;
+
     @GET
-    public List<Restaurante> listarRestaurantes() {
-        return Restaurante.listAll();
+    public List<RestauranteDTO> listarRestaurantes() {
+        Stream<Restaurante> restaurantes = Restaurante.streamAll();
+        return restaurantes.map(restaurante -> restauranteMapper.toDTO(restaurante)).collect(Collectors.toList());
     }
 
     @POST
@@ -72,17 +88,12 @@ public class RestauranteResource {
     @Path("{idRestaurante}/pratos")
     @Transactional
     @Tag(name = "prato")
-    public Response adicionarPrato(@PathParam("idRestaurante") Long idRestaurante, Prato dto) {
+    public Response adicionarPrato(@PathParam("idRestaurante") Long idRestaurante, AdicionarPratoDTO dto) {
         Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
         if (restauranteOp.isEmpty()) {
             throw new NotFoundException("Restaurante não existe");
         }
-        //Utilizando dto, recebi detached entity passed to persist:
-        Prato prato = new Prato();
-        prato.nome = dto.nome;
-        prato.descricao = dto.descricao;
-
-        prato.preco = dto.preco;
+        Prato prato = pratoMapper.toPrato(dto);
         prato.restaurante = restauranteOp.get();
         prato.persist();
         return Response.status(Response.Status.CREATED).build();
